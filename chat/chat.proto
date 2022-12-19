@@ -1,0 +1,12 @@
+syntax = "proto3";
+package chat;
+
+option go_package = "github.com/ashilesh/grpc-stream/chat";
+
+message Message{
+    string chatMessage = 1;
+}
+
+service ChatService {
+    rpc Connect(stream Message) returns (stream Message){}
+}
