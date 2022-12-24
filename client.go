@@ -9,22 +9,29 @@ import (
 
 	"github.com/ashilesh/grpc-stream/chat"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 func main() {
 	var wg sync.WaitGroup
 
+	kc := keepalive.ClientParameters{
+		Time:                10 * time.Second,
+		Timeout:             2 * time.Second,
+		PermitWithoutStream: true,
+	}
+
 	fmt.Println("client started")
 
-	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure(), grpc.WithKeepaliveParams(kc))
 	if err != nil {
 		panic("cannot make connection with localhost:9000")
 	}
 	defer conn.Close()
 
 	c := chat.NewChatServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
+	ctx := context.Background()
+	// defer cancel()
 
 	res, err := c.Connect(ctx)
 	if err != nil {
@@ -52,6 +59,9 @@ func main() {
 	res.Send(&chat.Message{ChatMessage: "this is 2 message"})
 	fmt.Println("data sent")
 
+	// time.Sleep(10 * time.Second)
+	// res.Send(&chat.Message{ChatMessage: "this is delayed message"})
+	// time.Sleep(10 * time.Second)
+	// res.Send(&chat.Message{ChatMessage: "this is delayed message"})
 	wg.Wait()
-
 }

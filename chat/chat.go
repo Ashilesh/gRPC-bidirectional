@@ -3,6 +3,7 @@ package chat
 import (
 	"fmt"
 	"io"
+	// "time"
 )
 
 type Server struct{}
@@ -10,7 +11,9 @@ type Server struct{}
 func (s *Server) Connect(stream ChatService_ConnectServer) error {
 	fmt.Println("connect called")
 	go func() {
+		// time.Sleep(9 * time.Second)
 		stream.Send(&Message{ChatMessage: "from server msg 1"})
+		// time.Sleep(10 * time.Second)
 		stream.Send(&Message{ChatMessage: "from server msg 2"})
 		fmt.Println("data sent")
 	}()

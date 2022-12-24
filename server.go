@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/ashilesh/grpc-stream/chat"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 func main() {
@@ -16,7 +18,16 @@ func main() {
 		panic("error while listening")
 	}
 
-	grpcServer := grpc.NewServer()
+	enforcement := keepalive.EnforcementPolicy{
+		MinTime:             10 * time.Second,
+		PermitWithoutStream: true,
+	}
+
+	grpcServer := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(enforcement),
+		grpc.KeepaliveParams(keepalive.ServerParameters{
+
+			// MaxConnectionAgeGrace: 30 * time.Second,
+		}))
 
 	s := chat.Server{}
 
